@@ -313,7 +313,8 @@
   text-align: left;
 }
 
-.finalized-copy-btn {
+.finalized-copy-btn,
+.finalized-python-btn {
   background: #fff;
   color: #667eea;
   border: 1px solid #e1e5e9;
@@ -325,7 +326,8 @@
   margin-left: 12px;
   transition: background 0.2s, color 0.2s;
 }
-.finalized-copy-btn:hover {
+.finalized-copy-btn:hover,
+.finalized-python-btn:hover {
   background: #f3f6fa;
   color: #764ba2;
 }

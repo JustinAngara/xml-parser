@@ -47,12 +47,21 @@ const Tools = () => {
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 1200);
     };
+    const handleCopyPython = () => {
+      const pythonScript =
+        `ids = [\n    ${idList.map(id => `'${id}'`).join(', ')}\n]\n\ntemplate = '''\n${xml.replace(/'''/g, "''' + " + "'''" + "'''")}\n'''
+\nfor id_value in ids:\n    print(template.replace('{id}', str(id_value)))\n`;
+      navigator.clipboard.writeText(pythonScript);
+    };
     return (
       <div className="finalized-output">
         <div className="finalized-header">
           Finalized Output
           <button className="finalized-copy-btn" onClick={handleCopy} type="button">
             {copySuccess ? 'Copied!' : 'Copy'}
+          </button>
+          <button className="finalized-python-btn" onClick={handleCopyPython} type="button">
+            Copy Python
           </button>
         </div>
         <pre className="finalized-pre">{result}</pre>
