@@ -17,7 +17,7 @@ const getRouteFromHash = () => {
   const hash = window.location.hash.replace(/^#\/?/, '');
   const prefix = window.location.pathname.replace(/^\//, '');
   if (prefix !== 'xml-parse') return DEFAULT_ROUTE;
-  if (!hash) return DEFAULT_ROUTE;
+  if (!hash) return 'home';
   const found = navItems.find(item => item.id === hash);
   return found ? found.id : DEFAULT_ROUTE;
 };
@@ -34,19 +34,20 @@ const Layout = () => {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
-  // On mount, redirect to default if not at xml-parse/#/home or xml-parse/#/tools
+  // On mount, redirect to default if not at xml-parse/#/ or xml-parse/#/tools
   useEffect(() => {
     const prefix = window.location.pathname.replace(/^\//, '');
+    const hash = window.location.hash.replace(/^#\/?/, '');
     if (prefix !== 'xml-parse') {
-      window.location.replace('/xml-parse/#/home');
-    } else if (!window.location.hash || !navItems.some(item => item.id === window.location.hash.replace(/^#\/?/, ''))) {
-      window.location.hash = '#/home';
+      window.location.replace('/xml-parse/#/');
+    } else if (!window.location.hash || !navItems.some(item => item.id === hash) && hash !== '') {
+      window.location.hash = '#/';
     }
   }, []);
 
   const handleNav = (id) => {
     window.location.pathname = '/xml-parse';
-    window.location.hash = `#/${id}`;
+    window.location.hash = id === 'home' ? '#/' : `#/${id}`;
     setActiveTab(id);
   };
 
