@@ -1,9 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import AppRoutes from '../Routes/AppRoutes';
 import './Layout.css';
-
-const ROUTE_PREFIX = 'xml-parse/#/';
-const DEFAULT_ROUTE = 'home';
 
 const navItems = [
   { id: 'home', label: 'Home', icon: '🏠' },
@@ -13,41 +10,10 @@ const navItems = [
   // { id: 'contact', label: 'Contact', icon: '📧' }
 ];
 
-const getRouteFromHash = () => {
-  const hash = window.location.hash.replace(/^#\/?/, '');
-  const prefix = window.location.pathname.replace(/^\//, '');
-  if (prefix !== 'xml-parse') return DEFAULT_ROUTE;
-  if (!hash) return 'home';
-  const found = navItems.find(item => item.id === hash);
-  return found ? found.id : DEFAULT_ROUTE;
-};
-
 const Layout = () => {
-  const [activeTab, setActiveTab] = useState(getRouteFromHash());
-
-  // Listen for hash changes
-  useEffect(() => {
-    const onHashChange = () => {
-      setActiveTab(getRouteFromHash());
-    };
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
-  }, []);
-
-  // On mount, redirect to default if not at xml-parse/#/ or xml-parse/#/tools
-  useEffect(() => {
-    const prefix = window.location.pathname.replace(/^\//, '');
-    const hash = window.location.hash.replace(/^#\/?/, '');
-    if (prefix !== 'xml-parse') {
-      window.location.replace('/xml-parse/#/');
-    } else if (!window.location.hash || !navItems.some(item => item.id === hash) && hash !== '') {
-      window.location.hash = '#/';
-    }
-  }, []);
+  const [activeTab, setActiveTab] = useState('home');
 
   const handleNav = (id) => {
-    window.location.pathname = '/xml-parse';
-    window.location.hash = id === 'home' ? '#/' : `#/${id}`;
     setActiveTab(id);
   };
 
