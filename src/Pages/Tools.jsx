@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Modal from '../Components/Modal';
 import './Tools.css';
+import Tool2 from '../Components/Tool2.jsx';
+import stringSimilarity from 'string-similarity';
 
 const Tools = () => {
   const [showTool1Modal, setShowTool1Modal] = useState(false);
@@ -8,6 +10,10 @@ const Tools = () => {
   const [ids, setIds] = useState('');
   const [workspaceData, setWorkspaceData] = useState(null);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [showTool2Modal, setShowTool2Modal] = useState(false);
+  const [tool2Inputs, setTool2Inputs] = useState({ input1: '', input2: '' });
+  const [tool2Output, setTool2Output] = useState(null);
+  const tableRef = useRef(null);
 
   const handleXmlChange = (e) => {
     setXmlText(e.target.value);
@@ -23,6 +29,37 @@ const Tools = () => {
     setShowTool1Modal(false);
     setXmlText('');
     setIds('');
+  };
+
+  const handleTool2InputChange = (e) => {
+    setTool2Inputs({ ...tool2Inputs, [e.target.name]: e.target.value });
+  };
+
+  const handleTool2Submit = (e) => {
+    e.preventDefault();
+    const rawKeywords = tool2Inputs.input1.split(/,|\n|;/).map(s => s.trim()).filter(Boolean);
+    const cleanedKeywords = tool2Inputs.input2.split(/,|\n|;/).map(s => s.trim()).filter(Boolean);
+    const getClosest = (word, options) => {
+      const { bestMatch } = stringSimilarity.findBestMatch(word, options);
+      return bestMatch.target;
+    };
+    const mapping = rawKeywords.map(raw => {
+      const closest = getClosest(raw, cleanedKeywords);
+      return { raw, closest };
+    });
+    setTool2Output({ mapping });
+    setShowTool2Modal(false);
+    setTool2Inputs({ input1: '', input2: '' });
+  };
+
+  const handleSelectAllOutput = () => {
+    if (tableRef.current) {
+      const range = document.createRange();
+      range.selectNodeContents(tableRef.current);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    }
   };
 
   // Finalized output: for each ID, replace {id} in the template and join results
@@ -81,17 +118,20 @@ const Tools = () => {
           <div className="tool-icon">🔧</div>
           <h3>Tool 1</h3>
           <p>Standard XML/ID Iterator Tool</p>
-          <button className="tool-button" onClick={() => setShowTool1Modal(true)}>
+          <button className="tool-button" onClick={() => { setShowTool1Modal(true); setShowTool2Modal(false); }}>
+            Open Tool
+          </button>
+        </div>
+        
+        <div className="tool-card">
+          <div className="tool-icon">⚙️</div>
+          <h3>Tool 2</h3>
+          <p>Clean up typo/dirty keywords</p>
+          <button className="tool-button" onClick={() => { setShowTool2Modal(true); setShowTool1Modal(false); }}>
             Open Tool
           </button>
         </div>
         {/*
-        <div className="tool-card">
-          <div className="tool-icon">⚙️</div>
-          <h3>Tool 2</h3>
-          <p>Description of tool 2</p>
-          <button className="tool-button">Open Tool</button>
-        </div>
         <div className="tool-card">
           <div className="tool-icon">🛠️</div>
           <h3>Tool 3</h3>
@@ -110,7 +150,27 @@ const Tools = () => {
       <div className="tools-workspace">
         <h2>Tools Workspace</h2>
         <div className="workspace-area">
-          {workspaceData ? (
+          {tool2Output ? (
+            <div className="tool2-output">
+              <div className="workspace-header">Tool 2 Output</div>
+              <button className="select-all-btn" onClick={handleSelectAllOutput} type="button">Select All</button>
+              <div className="tool2-table-wrapper">
+                <table className="tool2-table" ref={tableRef}>
+                  <thead>
+                    <tr><th>Input</th><th>Output</th></tr>
+                  </thead>
+                  <tbody>
+                    {tool2Output.mapping.map((row, idx) => (
+                      <tr key={idx}>
+                        <td>{row.raw}</td>
+                        <td>{row.closest}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : workspaceData ? (
             <>
               <div className="workspace-columns">
                 <div className="workspace-col">
@@ -154,6 +214,40 @@ const Tools = () => {
                 value={ids}
                 onChange={handleIdsChange}
                 placeholder="Paste IDs here, one per line or comma-separated"
+                rows={10}
+                required
+              />
+            </label>
+          </div>
+          <div className="tool-modal-actions">
+            <button type="submit" className="tool-modal-submit">Submit</button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal isOpen={showTool2Modal} onClose={() => setShowTool2Modal(false)} title="Tool 2 Input">
+        <form onSubmit={handleTool2Submit} className="tool-modal-form">
+          <div className="tool-modal-fields">
+            <label className="tool-modal-label xml">
+              Input Keywords:
+              <textarea
+                name="input1"
+                className="xml"
+                value={tool2Inputs.input1}
+                onChange={handleTool2InputChange}
+                placeholder="Enter first value"
+                rows={10}
+                required
+              />
+            </label>
+            <label className="tool-modal-label ids">
+              Fixed Keywords:
+              <textarea
+                name="input2"
+                className="ids"
+                value={tool2Inputs.input2}
+                onChange={handleTool2InputChange}
+                placeholder="Enter second value"
                 rows={10}
                 required
               />
