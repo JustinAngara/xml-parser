@@ -3,6 +3,7 @@ import Modal from '../Components/Modal';
 import './Tools.css';
 import Tool2 from '../Components/Tool2.jsx';
 import stringSimilarity from 'string-similarity';
+import Highlighter from 'react-highlight-words';
 
 const Tools = () => {
   const [showTool1Modal, setShowTool1Modal] = useState(false);
@@ -18,6 +19,18 @@ const Tools = () => {
   const idsTextareaRef = useRef(null);
   const tool2Input1Ref = useRef(null);
   const tool2Input2Ref = useRef(null);
+  const [showAddToolModal, setShowAddToolModal] = useState(false);
+  const [addToolInput1, setAddToolInput1] = useState('');
+  const [addToolInput2, setAddToolInput2] = useState('');
+  const addToolInput1Ref = useRef(null);
+  const addToolInput2Ref = useRef(null);
+  const [addToolOutput, setAddToolOutput] = useState(null);
+  const [addToolExpanded, setAddToolExpanded] = useState(false);
+  // Add a ref to the pre for Input 1
+  const input1PreRef = useRef(null);
+  const [selectedColor, setSelectedColor] = useState('crimson'); // default to red
+  // Instead of a single color per word, use an object: { color: '...', strikethrough: true/false }
+  const [wordStates, setWordStates] = useState([]); // array of { color, strikethrough } for each word
 
   const autoResize = (ref) => {
     if (ref && ref.current) {
@@ -121,6 +134,84 @@ const Tools = () => {
     );
   };
 
+  const setupIterator = (state, word, strikethrough) =>{
+
+  };
+  const handleAddToolInput1Change = (e) => {
+    setAddToolInput1(e.target.value);
+    autoResize(addToolInput1Ref);
+  };
+  const handleAddToolInput2Change = (e) => {
+    setAddToolInput2(e.target.value);
+    autoResize(addToolInput2Ref);
+  };
+  const handleAddToolSubmit = (e) => {
+    e.preventDefault();
+    setAddToolOutput({ input1: addToolInput1, input2: addToolInput2 });
+    setShowAddToolModal(false);
+    setAddToolInput1('');
+    setAddToolInput2('');
+  };
+
+  // Add a mouseup handler for multi-word selection
+  const handleInput1MouseUp = () => {
+    if (!input1PreRef.current) return;
+    const selection = window.getSelection();
+    if (!selection || selection.isCollapsed) return;
+    const selectedText = selection.toString();
+    if (!selectedText.trim()) return;
+    // Find all word indices in the selection
+    const words = addToolOutput.input1.split(/(\b\w+\b)/g);
+    let selectedIndices = [];
+    for (let i = 0; i < words.length; i++) {
+      if (/^\w+$/.test(words[i])) {
+        if (
+          selection.anchorNode &&
+          selection.focusNode &&
+          selection.anchorNode.parentElement &&
+          selection.anchorNode.parentElement.closest('.input1-pre') &&
+          selection.focusNode.parentElement &&
+          selection.focusNode.parentElement.closest('.input1-pre')
+        ) {
+          // If the word is in the selected text
+          if (
+            selection.containsNode(
+              input1PreRef.current.childNodes[i],
+              true
+            )
+          ) {
+            selectedIndices.push(i);
+          }
+        } else if (
+          selectedText.includes(words[i]) &&
+          selectedText.match(new RegExp('\\b' + words[i] + '\\b'))
+        ) {
+          selectedIndices.push(i);
+        }
+      }
+    }
+    if (selectedIndices.length > 0) {
+      setWordStates((prev) => {
+        const next = [...prev];
+        for (const idx of selectedIndices) {
+          const current = prev[idx] || { color: 'crimson', strikethrough: false };
+          if (selectedColor === 'gray') {
+            if (current.color === 'dodgerblue') {
+              next[idx] = { ...current, strikethrough: !current.strikethrough };
+            }
+          } else {
+            next[idx] = {
+              color: selectedColor,
+              strikethrough: selectedColor === 'dodgerblue' ? current.strikethrough : false,
+            };
+          }
+        }
+        return next;
+      });
+    }
+    selection.removeAllRanges();
+  };
+
   return (
     <div className="tools-page">
       <div className="tools-header">
@@ -158,7 +249,7 @@ const Tools = () => {
           <div className="tool-icon">➕</div>
           <h3>Add New Tool</h3>
           <p>Create a new tool</p>
-          <button className="tool-button">Add Tool</button>
+          <button className="tool-button" onClick={() => setShowAddToolModal(true)}>Add Tool</button>
         </div>
       </div>
       
@@ -199,6 +290,95 @@ const Tools = () => {
               </div>
               {getFinalizedOutput(workspaceData.xml, workspaceData.ids)}
             </>
+          ) : addToolOutput ? (
+            <div className="workspace-columns">
+              <div className={`workspace-col${addToolExpanded ? ' expanded' : ''}`}> 
+                <div className="workspace-header">
+                  Input 1
+                  <button
+                    className="expand-btn"
+                    type="button"
+                    onClick={() => setAddToolExpanded((prev) => !prev)}
+                  >
+                    {addToolExpanded ? 'Collapse' : 'Expand'}
+                  </button>
+                </div>
+                <div className="highlight-mode-group">
+                  {[
+                    { key: 'static', label: 'Static', color: 'crimson' },
+                    { key: 'iterator', label: 'Iterator', color: 'dodgerblue' },
+                    { key: 'strikethrough', label: 'Strikethrough', color: 'gray' },
+                  ].map(({ key, label, color }) => (
+                    <label key={key} className={`highlight-mode-btn${selectedColor === color ? ' active' : ''}`}
+                      style={{ background: selectedColor === color ? color : '#eee', color: selectedColor === color ? '#fff' : '#333' }}>
+                      <input
+                        type="radio"
+                        name="highlightMode"
+                        value={color}
+                        checked={selectedColor === color}
+                        onChange={() => setSelectedColor(color)}
+                        style={{ display: 'none' }}
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+                <pre
+                  ref={input1PreRef}
+                  className="workspace-pre input1-pre"
+                  style={{ cursor: 'pointer', userSelect: 'text' }}
+                  onMouseUp={handleInput1MouseUp}
+                >
+                  {addToolOutput.input1.split(/(\b\w+\b)/g).map((part, idx) => {
+                    if (/^\w+$/.test(part)) {
+                      const state = wordStates[idx] || { color: 'crimson', strikethrough: false };
+                      let style = {
+                        backgroundColor: state.color,
+                        color: state.color === 'crimson' ? '#fff' : '#222',
+                        padding: '0 2px',
+                        borderRadius: '3px',
+                        cursor: 'pointer',
+                      };
+                      if (state.color === 'dodgerblue' && state.strikethrough) {
+                        style.textDecoration = 'line-through';
+                        style.textDecorationColor = '#fff';
+                        style.textDecorationThickness = '3px';
+                      }
+                      return (
+                        <span
+                          key={idx}
+                          style={style}
+                          onClick={() => setWordStates((prev) => {
+                            const next = [...prev];
+                            const current = prev[idx] || { color: 'crimson', strikethrough: false };
+                            if (selectedColor === 'gray') {
+                              if (current.color === 'dodgerblue') {
+                                next[idx] = { ...current, strikethrough: !current.strikethrough };
+                              }
+                            } else {
+                              next[idx] = {
+                                color: selectedColor,
+                                strikethrough: selectedColor === 'dodgerblue' ? current.strikethrough : false,
+                              };
+                            }
+                            return next;
+                          })}
+                        >
+                          {part}
+                        </span>
+                      );
+                    }
+                    return part;
+                  })}
+                </pre>
+              </div>
+              {!addToolExpanded && (
+                <div className="workspace-col">
+                  <div className="workspace-header">Input 2</div>
+                  <pre className="workspace-pre">{addToolOutput.input2}</pre>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               <p>Open space for tools to be displayed here</p>
@@ -269,6 +449,40 @@ const Tools = () => {
                 required
                 ref={tool2Input2Ref}
                 onInput={() => autoResize(tool2Input2Ref)}
+              />
+            </label>
+          </div>
+          <div className="tool-modal-actions">
+            <button type="submit" className="tool-modal-submit">Submit</button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal isOpen={showAddToolModal} onClose={() => setShowAddToolModal(false)} title="Add New Tool">
+        <form onSubmit={handleAddToolSubmit} className="tool-modal-form">
+          <div className="tool-modal-fields">
+            <label className="tool-modal-label xml">
+              Input 1:
+              <textarea
+                className="xml"
+                value={addToolInput1}
+                onChange={handleAddToolInput1Change}
+                placeholder="Enter first value"
+                required
+                ref={addToolInput1Ref}
+                onInput={() => autoResize(addToolInput1Ref)}
+              />
+            </label>
+            <label className="tool-modal-label ids">
+              Input 2:
+              <textarea
+                className="ids"
+                value={addToolInput2}
+                onChange={handleAddToolInput2Change}
+                placeholder="Enter second value"
+                required
+                ref={addToolInput2Ref}
+                onInput={() => autoResize(addToolInput2Ref)}
               />
             </label>
           </div>

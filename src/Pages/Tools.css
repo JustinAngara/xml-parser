@@ -248,10 +248,11 @@
   flex-direction: row;
   gap: 32px;
   margin-bottom: 24px;
+  width: 100%;
+  height: 100%;
 }
 
 .workspace-col {
-  flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -262,6 +263,36 @@
   overflow: hidden;
 }
 
+/* Proportional sizing for Add Tool output */
+.workspace-columns .workspace-col:first-child {
+  flex: 2;
+}
+.workspace-columns .workspace-col:last-child {
+  flex: 1;
+}
+
+.workspace-col.expanded {
+  flex: 1 1 100%;
+  width: 100%;
+  max-width: 100%;
+}
+
+.expand-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-left: 16px;
+  transition: background 0.2s, color 0.2s;
+}
+.expand-btn:hover {
+  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+}
+
 .workspace-header {
   background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
   color: #fff;
@@ -270,6 +301,10 @@
   padding: 14px 20px;
   border-bottom: 1px solid #e1e5e9;
   letter-spacing: 0.5px;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .workspace-pre {
@@ -285,6 +320,13 @@
   max-height: 300px;
   overflow: auto;
   color: #333;
+}
+
+/* Remove center alignment from workspace-pre in workspace-col (Input 1) */
+.workspace-col .workspace-pre {
+  text-align: left;
+  justify-content: flex-start;
+  align-items: flex-start;
 }
 
 .finalized-output {
@@ -406,4 +448,51 @@
 }
 .select-all-btn:hover {
   background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+} 
+
+.toggle-mode-btn {
+  background: linear-gradient(135deg, #ff9800 0%, #ffc107 100%);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 4px 16px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.toggle-mode-btn:hover {
+  background: linear-gradient(135deg, #ffb300 0%, #ffd54f 100%);
+}
+
+.input1-pre.highlighted {
+  outline: 2px solid #222;
+  box-shadow: 0 0 0 2px #ffd54f;
+} 
+
+.highlight-mode-group {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.highlight-mode-btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  background: #eee;
+  color: #333;
+  transition: background 0.2s, color 0.2s;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.04);
+  user-select: none;
+}
+
+.highlight-mode-btn.active {
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.12);
+  border: 2px solid #333;
+  color: #fff;
 } 
