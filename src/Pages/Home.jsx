@@ -1,7 +1,7 @@
 import React from 'react';
 import './Home.css';
 
-const Home = () => {
+const Home = ({ setActiveTab }) => {
   const openXMLManager = () => {
     window.open('https://chatgpt.com/g/g-687b0631d4448191b416e2fd9ab2b739-xml-manager', '_blank');
   };
@@ -12,7 +12,7 @@ const Home = () => {
         <h1>Welcome to XML App</h1>
         <p>A powerful application for working with XML tools and utilities</p>
         <div className="hero-buttons">
-          <button className="primary-button">Get Started</button>
+          <button className="primary-button" onClick={() => setActiveTab && setActiveTab('tools')}>Get Started</button>
           <button className="ai-button" onClick={openXMLManager}>
             <span className="ai-icon">🤖</span>
             Open XML Manager AI

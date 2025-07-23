@@ -14,13 +14,26 @@ const Tools = () => {
   const [tool2Inputs, setTool2Inputs] = useState({ input1: '', input2: '' });
   const [tool2Output, setTool2Output] = useState(null);
   const tableRef = useRef(null);
+  const xmlTextareaRef = useRef(null);
+  const idsTextareaRef = useRef(null);
+  const tool2Input1Ref = useRef(null);
+  const tool2Input2Ref = useRef(null);
+
+  const autoResize = (ref) => {
+    if (ref && ref.current) {
+      ref.current.style.height = 'auto';
+      ref.current.style.height = ref.current.scrollHeight + 'px';
+    }
+  };
 
   const handleXmlChange = (e) => {
     setXmlText(e.target.value);
+    autoResize(xmlTextareaRef);
   };
 
   const handleIdsChange = (e) => {
     setIds(e.target.value);
+    autoResize(idsTextareaRef);
   };
 
   const handleSubmit = (e) => {
@@ -33,6 +46,8 @@ const Tools = () => {
 
   const handleTool2InputChange = (e) => {
     setTool2Inputs({ ...tool2Inputs, [e.target.name]: e.target.value });
+    if (e.target.name === 'input1') autoResize(tool2Input1Ref);
+    if (e.target.name === 'input2') autoResize(tool2Input2Ref);
   };
 
   const handleTool2Submit = (e) => {
@@ -203,8 +218,9 @@ const Tools = () => {
                 value={xmlText}
                 onChange={handleXmlChange}
                 placeholder="Paste your XML here"
-                rows={10}
                 required
+                ref={xmlTextareaRef}
+                onInput={() => autoResize(xmlTextareaRef)}
               />
             </label>
             <label className="tool-modal-label ids">
@@ -214,8 +230,9 @@ const Tools = () => {
                 value={ids}
                 onChange={handleIdsChange}
                 placeholder="Paste IDs here, one per line or comma-separated"
-                rows={10}
                 required
+                ref={idsTextareaRef}
+                onInput={() => autoResize(idsTextareaRef)}
               />
             </label>
           </div>
@@ -236,8 +253,9 @@ const Tools = () => {
                 value={tool2Inputs.input1}
                 onChange={handleTool2InputChange}
                 placeholder="Enter first value"
-                rows={10}
                 required
+                ref={tool2Input1Ref}
+                onInput={() => autoResize(tool2Input1Ref)}
               />
             </label>
             <label className="tool-modal-label ids">
@@ -248,8 +266,9 @@ const Tools = () => {
                 value={tool2Inputs.input2}
                 onChange={handleTool2InputChange}
                 placeholder="Enter second value"
-                rows={10}
                 required
+                ref={tool2Input2Ref}
+                onInput={() => autoResize(tool2Input2Ref)}
               />
             </label>
           </div>

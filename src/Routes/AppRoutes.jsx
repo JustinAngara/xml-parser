@@ -3,11 +3,11 @@ import Home from '../Pages/Home';
 import Tools from '../Pages/Tools';
 import Map from '../Pages/Map';
 
-const AppRoutes = ({ activeTab }) => {
+const AppRoutes = ({ activeTab, setActiveTab }) => {
   const renderContent = () => {
     switch (activeTab) {
       case 'home':
-        return <Home />;
+        return <Home setActiveTab={setActiveTab} />;
       case 'tools':
         return <Tools />;
       case 'map':

@@ -39,7 +39,7 @@ const Layout = () => {
       </nav>
       <main className="main-content">
         <div className="content-area">
-          <AppRoutes activeTab={activeTab} />
+          <AppRoutes activeTab={activeTab} setActiveTab={setActiveTab} />
         </div>
       </main>
     </div>
