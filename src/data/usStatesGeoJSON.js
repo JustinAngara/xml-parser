@@ -1,13 +1,25 @@
-// Simple GeoJSON with 3 random circular areas
-// Helper function to generate circular coordinates
-const createCircle = (centerLng, centerLat, radius, points = 32) => {
+// Helper: Convert miles to degrees for longitude and latitude
+const milesToDegrees = (miles, lat) => {
+  const latDeg = miles * 0.01449; 
+  const lngDeg = miles * 0.01449 / Math.cos(lat * Math.PI / 180);
+  return { latDeg, lngDeg };
+};
+
+// Generate circular coordinates using miles
+const createCircle = (centerLng, centerLat, radiusMiles, points = 1024) => {
+  const { latDeg, lngDeg } = milesToDegrees(radiusMiles, centerLat);
   const coordinates = [];
-  for (let i = 0; i <= points; i++) {
+
+  for (let i = 0; i < points; i++) {
     const angle = (i * 2 * Math.PI) / points;
-    const lng = centerLng + radius * Math.cos(angle);
-    const lat = centerLat + radius * Math.sin(angle);
+    const lng = centerLng + lngDeg * Math.cos(angle);
+    const lat = centerLat + latDeg * Math.sin(angle);
     coordinates.push([lng, lat]);
   }
+
+  // Close the polygon by repeating the first coordinate
+  coordinates.push(coordinates[0]);
+
   return coordinates;
 };
 
@@ -19,7 +31,7 @@ export const usStatesGeoJSON = {
       properties: { id: "AREA1", name: "Kansas City", value: 85 },
       geometry: {
         type: "Polygon",
-        coordinates: [createCircle(-94.5786, 39.0997, 0.1)]
+        coordinates: [createCircle(-94.5786, 39.0997, 5)]
       }
     },
     {
@@ -27,7 +39,7 @@ export const usStatesGeoJSON = {
       properties: { id: "AREA2", name: "New York City", value: 72 },
       geometry: {
         type: "Polygon",
-        coordinates: [createCircle(-74.0060, 40.7128, 0.1)]
+        coordinates: [createCircle(-74.0060, 40.7128, 5)]
       }
     },
     {
@@ -35,15 +47,14 @@ export const usStatesGeoJSON = {
       properties: { id: "AREA3", name: "Los Angeles", value: 93 },
       geometry: {
         type: "Polygon",
-        coordinates: [createCircle(-118.2437, 34.0522, 0.1)]
+        coordinates: [createCircle(-118.2437, 34.0522, 5)]
       }
     }
   ]
 };
 
-// Color mapping function
 export const getStateColor = (value) => {
-  if (value >= 80) return '#ff6b6b'; // High value
-  if (value >= 60) return '#4ecdc4'; // Medium value
-  return '#96ceb4'; // Low value
-}; 
+  if (value >= 80) return '#ff6b6b';
+  if (value >= 60) return '#4ecdc4';
+  return '#96ceb4';
+};

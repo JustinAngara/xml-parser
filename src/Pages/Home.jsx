@@ -26,7 +26,7 @@ const Home = ({ setActiveTab }) => {
         <h2>Features</h2>
         <div className="features-grid">
           <div className="feature-card">
-            <div className="feature-icon">🤖</div>
+            {/* <div className="feature-icon">🤖</div> */}
             <h3>AI Assistant</h3>
             <p>Get help with XML using our AI-powered manager</p>
             <button className="feature-button" onClick={openXMLManager}>
@@ -34,19 +34,14 @@ const Home = ({ setActiveTab }) => {
             </button>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">🔧</div>
+            {/* <div className="feature-icon">🔧</div> */}
             <h3>Powerful Tools</h3>
             <p>Access a variety of XML processing tools</p>
           </div>
           <div className="feature-card">
-            <div className="feature-icon">⚡</div>
+            {/* <div className="feature-icon">⚡</div> */}
             <h3>Fast Processing</h3>
             <p>Quick and efficient XML operations</p>
-          </div>
-          <div className="feature-card">
-            <div className="feature-icon">🛡️</div>
-            <h3>Secure</h3>
-            <p>Safe and reliable XML handling</p>
           </div>
         </div>
       </div>

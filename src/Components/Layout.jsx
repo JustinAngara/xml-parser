@@ -3,9 +3,9 @@ import AppRoutes from '../Routes/AppRoutes';
 import './Layout.css';
 
 const navItems = [
-  { id: 'home', label: 'Home', icon: '🏠' },
-  { id: 'tools', label: 'Tools', icon: '🔧' },
-  // { id: 'map', label: 'Map', icon: '🗺️' },
+  { id: 'home', label: 'Home', icon: '' },
+  { id: 'tools', label: 'Tools', icon: '' },
+  { id: 'map', label: 'Map', icon: '' },
   // { id: 'about', label: 'About', icon: 'ℹ️' },
   // { id: 'contact', label: 'Contact', icon: '📧' }
 ];
