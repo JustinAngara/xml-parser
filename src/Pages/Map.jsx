@@ -25,6 +25,8 @@ const Map = () => {
   return (
     <div style={{ width: "95vw", height: "95vh" }}>
       <div ref={mapRef} style={{ width: "100%", height: "100%" }} />
+    
+      
       <a href="https://justinangara.github.io/personal-website/"></a>
     </div>
   );
@@ -36,7 +38,7 @@ const Map = () => {
 const createMap = (google, mapElement) => {
   return new google.maps.Map(mapElement, {
     center: { lat: 41.8781, lng: -87.6298 }, // Chicago default
-    zoom: 6,
+    zoom: 12,
     styles: mapStyle,
   });
 };

@@ -152,7 +152,6 @@ export const longLat = {
         {long: -87.709999, lat: 41.917408}, // Logan Square
         {long: -87.751617, lat: 41.963425}, // Jefferson Park
         {long: -87.625656, lat: 41.864711}, // Chinatown
-        {long: -87.554932, lat: 41.867005}, // East Side
         {long: -87.687302, lat: 41.799000}, // McKinley Park
         {long: -87.598724, lat: 41.745842}, // Woodlawn
         {long: -87.726059, lat: 41.793194}, // Brighton Park
