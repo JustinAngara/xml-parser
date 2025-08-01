@@ -134,9 +134,7 @@ const Tools = () => {
     );
   };
 
-  const setupIterator = (state, word, strikethrough) =>{
-
-  };
+  
   const handleAddToolInput1Change = (e) => {
     setAddToolInput1(e.target.value);
     autoResize(addToolInput1Ref);
