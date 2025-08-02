@@ -377,7 +377,7 @@ const processTool3Input = (input) => {
             </div>
           ) : tool3Output ? (
             <div className="tool3-output">
-              <div className="workspace-header">Tool 3 Output - Text Analysis</div>
+              <div className="workspace-header">Tool 3 Assertion Mapper</div>
               <div className="tool3-results">
                 <div className="tool3-stats">
                   <h4>Assertion Dump</h4>
