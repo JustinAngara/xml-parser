@@ -14,11 +14,18 @@ const Tools = () => {
   const [showTool2Modal, setShowTool2Modal] = useState(false);
   const [tool2Inputs, setTool2Inputs] = useState({ input1: '', input2: '' });
   const [tool2Output, setTool2Output] = useState(null);
+  
+  // Tool 3 state
+  const [showTool3Modal, setShowTool3Modal] = useState(false);
+  const [tool3Input, setTool3Input] = useState('');
+  const [tool3Output, setTool3Output] = useState(null);
+  
   const tableRef = useRef(null);
   const xmlTextareaRef = useRef(null);
   const idsTextareaRef = useRef(null);
   const tool2Input1Ref = useRef(null);
   const tool2Input2Ref = useRef(null);
+  const tool3InputRef = useRef(null);
   const [showAddToolModal, setShowAddToolModal] = useState(false);
   const [addToolInput1, setAddToolInput1] = useState('');
   const [addToolInput2, setAddToolInput2] = useState('');
@@ -55,6 +62,10 @@ const Tools = () => {
     setShowTool1Modal(false);
     setXmlText('');
     setIds('');
+    // Clear other outputs when Tool 1 is used
+    setTool2Output(null);
+    setTool3Output(null);
+    setAddToolOutput(null);
   };
 
   const handleTool2InputChange = (e) => {
@@ -78,7 +89,91 @@ const Tools = () => {
     setTool2Output({ mapping });
     setShowTool2Modal(false);
     setTool2Inputs({ input1: '', input2: '' });
+    // Clear other outputs when Tool 2 is used
+    setWorkspaceData(null);
+    setTool3Output(null);
+    setAddToolOutput(null);
   };
+
+  // Tool 3 handlers
+  const handleTool3InputChange = (e) => {
+    setTool3Input(e.target.value);
+    autoResize(tool3InputRef);
+  };
+
+  const handleTool3Submit = (e) => {
+    e.preventDefault();
+    const processedOutput = processTool3Input(tool3Input);
+    setTool3Output(processedOutput);
+    setShowTool3Modal(false);
+    setTool3Input('');
+    // Clear other outputs when Tool 3 is used
+    setWorkspaceData(null);
+    setTool2Output(null);
+    setAddToolOutput(null);
+  };
+
+  // Tool 3 processing method - customize this based on what you want the tool to do
+  /*
+     
+  */
+  
+const processTool3Input = (input) => {
+    if (!input.trim()) return null;
+      
+    // this will find the true new line and break it up to sections
+    const inputArr = input.split('\n\n');
+    
+    // Object to store unique assertions with their PLMN paths
+    const assertionMap = new Map();
+    
+    // we want to check if it contains ERROR TEXT and Assertion
+    for(let i = 0; i < inputArr.length; i++){
+        let block = inputArr[i];
+        
+        // Check if block contains both "ERROR TEXT" and "Assertion"
+        if(block.includes("ERROR TEXT") && block.includes("Assertion")){
+            // Extract PLMN path from the first line of the block
+            const lines = block.split('\n');
+            const firstLine = lines[0].trim();
+            
+            // Clean the PLMN path by taking everything before the first space
+            const plmnPath = firstLine.split(' ')[0];
+            
+            // Extract assertion number using regex
+            const assertionMatch = block.match(/"Assertion":\s*"(\d+)"/);
+            
+            if(assertionMatch && plmnPath.startsWith('PLMN-PLMN')){
+                const assertionNumber = assertionMatch[1];
+                
+                // If this assertion hasn't been seen before, create a new entry
+                if(!assertionMap.has(assertionNumber)){
+                    assertionMap.set(assertionNumber, {
+                        assertion: assertionNumber,
+                        plmnPaths: new Set()
+                    });
+                }
+                
+                // Add the PLMN path to this assertion
+                assertionMap.get(assertionNumber).plmnPaths.add(plmnPath);
+            }
+        }
+    }
+    
+    // Convert to output format
+    const output = {
+        uniqueAssertions: Array.from(assertionMap.values()).map(item => ({
+            assertion: item.assertion,
+            plmnPaths: Array.from(item.plmnPaths)
+        }))
+    };
+    
+    // console.log('Input Array: ', inputArr);
+    // console.log('Processed Output: ', output);
+    
+    return output;
+};
+
 
   const handleSelectAllOutput = () => {
     if (tableRef.current) {
@@ -149,6 +244,10 @@ const Tools = () => {
     setShowAddToolModal(false);
     setAddToolInput1('');
     setAddToolInput2('');
+    // Clear other outputs when Add Tool is used
+    setWorkspaceData(null);
+    setTool2Output(null);
+    setTool3Output(null);
   };
 
   // Add a mouseup handler for multi-word selection
@@ -222,7 +321,7 @@ const Tools = () => {
           <div className="tool-icon">🔧</div>
           <h3>Tool 1</h3>
           <p>Standard XML/ID Iterator Tool</p>
-          <button className="tool-button" onClick={() => { setShowTool1Modal(true); setShowTool2Modal(false); }}>
+          <button className="tool-button" onClick={() => { setShowTool1Modal(true); setShowTool2Modal(false); setShowTool3Modal(false); }}>
             Open Tool
           </button>
         </div>
@@ -231,18 +330,20 @@ const Tools = () => {
           <div className="tool-icon">⚙️</div>
           <h3>Tool 2</h3>
           <p>Clean up typo/dirty keywords</p>
-          <button className="tool-button" onClick={() => { setShowTool2Modal(true); setShowTool1Modal(false); }}>
+          <button className="tool-button" onClick={() => { setShowTool2Modal(true); setShowTool1Modal(false); setShowTool3Modal(false); }}>
             Open Tool
           </button>
         </div>
-        {/*
+        
         <div className="tool-card">
-          <div className="tool-icon">🛠️</div>
+          <div className="tool-icon">📊</div>
           <h3>Tool 3</h3>
-          <p>Description of tool 3</p>
-          <button className="tool-button">Open Tool</button>
+          <p>Text Analysis & Statistics</p>
+          <button className="tool-button" onClick={() => { setShowTool3Modal(true); setShowTool1Modal(false); setShowTool2Modal(false); }}>
+            Open Tool
+          </button>
         </div>
-        */}
+        
         <div className="tool-card add-tool">
           <div className="tool-icon">➕</div>
           <h3>Add New Tool</h3>
@@ -272,6 +373,51 @@ const Tools = () => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          ) : tool3Output ? (
+            <div className="tool3-output">
+              <div className="workspace-header">Tool 3 Output - Text Analysis</div>
+              <div className="tool3-results">
+                <div className="tool3-stats">
+                  <h4>Assertion Dump</h4>
+                  <div className="stats-grid">
+                    {tool3Output.uniqueAssertions.map((assertionGroup, index) => (
+                      <div key={assertionGroup.assertion} className="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                        {/* Assertion Header */}
+                        <div className="bg-blue-50 px-4 py-3 border-b border-gray-200">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-md font-medium text-blue-900">
+                              Assertion #{assertionGroup.assertion}
+                            </h4>
+                            <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
+                              {assertionGroup.plmnPaths.length} occurrence{assertionGroup.plmnPaths.length !== 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* PLMN Paths Grid */}
+                        <div className="p-4">
+                          <div className="grid gap-2">
+                            {assertionGroup.plmnPaths.map((plmnPath, pathIndex) => (
+                              <div 
+                                key={pathIndex}
+                                className="bg-gray-50 border border-gray-200 rounded p-3 hover:bg-gray-100 transition-colors"
+                              >
+                                <div className="font-mono text-sm text-gray-800 break-all">
+                                  {plmnPath}
+                                </div>
+
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+               
+                
               </div>
             </div>
           ) : workspaceData ? (
@@ -456,6 +602,28 @@ const Tools = () => {
         </form>
       </Modal>
 
+      <Modal isOpen={showTool3Modal} onClose={() => setShowTool3Modal(false)} title="Tool 3 - Text Analysis">
+        <form onSubmit={handleTool3Submit} className="tool-modal-form">
+          <div className="tool-modal-fields">
+            <label className="tool-modal-label xml">
+              Text to Analyze:
+              <textarea
+                className="xml"
+                value={tool3Input}
+                onChange={handleTool3InputChange}
+                placeholder="Enter or paste the text you want to analyze..."
+                required
+                ref={tool3InputRef}
+                onInput={() => autoResize(tool3InputRef)}
+              />
+            </label>
+          </div>
+          <div className="tool-modal-actions">
+            <button type="submit" className="tool-modal-submit">Analyze Text</button>
+          </div>
+        </form>
+      </Modal>
+
       <Modal isOpen={showAddToolModal} onClose={() => setShowAddToolModal(false)} title="Add New Tool">
         <form onSubmit={handleAddToolSubmit} className="tool-modal-form">
           <div className="tool-modal-fields">
@@ -493,4 +661,4 @@ const Tools = () => {
   );
 };
 
-export default Tools; 
+export default Tools;
