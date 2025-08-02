@@ -338,7 +338,7 @@ const processTool3Input = (input) => {
         <div className="tool-card">
           <div className="tool-icon">📊</div>
           <h3>Tool 3</h3>
-          <p>Text Analysis & Statistics</p>
+          <p>Assertion Mapper</p>
           <button className="tool-button" onClick={() => { setShowTool3Modal(true); setShowTool1Modal(false); setShowTool2Modal(false); }}>
             Open Tool
           </button>
